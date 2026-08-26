@@ -309,6 +309,21 @@
   .sponsor-includes .item p{font-size:13.5px;color:var(--paper-dim);line-height:1.6;}
   @media (max-width:800px){ .sponsor-includes{grid-template-columns:1fr;} .quota-row{flex-direction:column;align-items:flex-start;} .quota-price{text-align:left;} }
 
+  /* ---------------- SEASON TIERS ---------------- */
+  .season-block{margin-top:70px;padding-top:60px;border-top:1px solid var(--line);}
+  .season-block .sponsor-top{margin-bottom:44px;}
+  .tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--line);}
+  .tier{background:var(--black);padding:30px 26px;position:relative;transition:background .2s ease;}
+  .tier:hover{background:var(--black-2);}
+  .tier .lvl{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;}
+  .tier .amt{font-family:'Instrument Serif',serif;font-size:34px;color:var(--paper);line-height:1;}
+  .tier .amt sup{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--blood-bright);margin-left:4px;}
+  .tier .name{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--paper-dim);margin:8px 0 18px;}
+  .tier ul{list-style:none;padding:0;margin:0;}
+  .tier li{font-size:13px;color:var(--paper-dim);line-height:1.7;padding-left:16px;position:relative;}
+  .tier li::before{content:"—";position:absolute;left:0;color:var(--gold);}
+  @media (max-width:800px){ .tiers{grid-template-columns:1fr;} }
+
   /* ---------------- FINAL CTA ---------------- */
   .cta-final{
     padding:130px 24px;text-align:center;
@@ -592,6 +607,47 @@
       <div class="item">
         <div class="ico">03 ///</div>
         <p>Associação da marca à primeira micro-série vertical produzida no Sul do Espírito Santo.</p>
+      </div>
+    </div>
+
+    <div class="season-block">
+      <div class="sponsor-top rv">
+        <div class="eyebrow">Para quem quer entrar maior</div>
+        <h2>Patrocine a temporada inteira.</h2>
+        <p>Além das cotas por episódio, também é possível associar sua marca a toda a primeira temporada de "Vem Pra Mim" — com presença recorrente ao longo de todos os episódios.</p>
+      </div>
+
+      <div class="tiers rv">
+        <div class="tier">
+          <div class="lvl">Nível 1</div>
+          <div class="amt">R$1.000<sup>—2.000</sup></div>
+          <div class="name">Apoio</div>
+          <ul>
+            <li>Logo nos créditos da temporada</li>
+            <li>Agradecimento nomeado</li>
+            <li>Associação à produção</li>
+          </ul>
+        </div>
+        <div class="tier">
+          <div class="lvl">Nível 2</div>
+          <div class="amt">R$3.000<sup>—5.000</sup></div>
+          <div class="name">Parceiro</div>
+          <ul>
+            <li>Maior presença da marca</li>
+            <li>Participação na divulgação</li>
+            <li>Possibilidade de inserção narrativa/locação</li>
+          </ul>
+        </div>
+        <div class="tier">
+          <div class="lvl">Nível 3</div>
+          <div class="amt">R$7.500<sup>+</sup></div>
+          <div class="name">Patrocinador Principal</div>
+          <ul>
+            <li>Marca associada à temporada inteira</li>
+            <li>Presença recorrente nos episódios</li>
+            <li>Entregas específicas combinadas com a produção</li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>

@@ -547,7 +547,7 @@
 <!-- ============ 8. EXEMPLOS DE CRESCIMENTO ============ -->
 <section>
   <h2>Como funciona a divisão — exemplos de crescimento</h2>
-  <p class="muted">Pra fins didáticos, uma divisão inicial de 50% / 50% entre produção e Fundo de Participação:</p>
+  <p class="muted">Pra fins didáticos: primeiro a produção garante o piso de R$ 7.500. Toda a diferença acima disso vai pro Fundo, até os dois empatarem em R$ 15.000. Depois do empate, os dois crescem sempre juntos, 50% / 50%.</p>
 
   <div id="growth-examples"></div>
 
@@ -600,6 +600,7 @@
         <div class="split-half-amt" id="pote-b-amt">R$ 25.000</div>
       </div>
     </div>
+    <p id="piso-notice" class="muted" style="font-size:12.5px;display:none;margin:10px 0 0;"></p>
 
     <p class="muted" style="font-size:12.5px;margin:22px 0 12px;">O Fundo acima (Pote B) se divide assim entre o elenco:</p>
     <div class="calc-rows" id="calc-rows"></div>
@@ -713,19 +714,27 @@
 <footer>MACUCA PRODUÇÕES · TV MARATAÍZES · MATERIAL DE APRESENTAÇÃO, NÃO SUBSTITUI O CONTRATO</footer>
 
 <script>
-// ---- Section 8: growth examples (50/50 split) ----
+const PISO = 7500; // custo de referência mensal — garantido pra produção primeiro
+const EMPATE = PISO * 2; // 15.000 — ponto em que o Fundo alcança a produção
+const fmt = n => 'R$ ' + Math.round(n).toLocaleString('pt-BR');
+function splitPotes(total){
+  if (total <= PISO) return { poteA: total, poteB: 0 };
+  if (total <= EMPATE) return { poteA: PISO, poteB: total - PISO };
+  return { poteA: total / 2, poteB: total / 2 };
+}
+
+// ---- Section 8: growth examples ----
 const growthValues = [20000, 30000, 40000, 50000, 100000, 200000, 500000, 1000000];
-const fmt = n => 'R$ ' + n.toLocaleString('pt-BR');
 const growthEl = document.getElementById('growth-examples');
 growthValues.forEach(v => {
-  const half = v/2;
+  const { poteA, poteB } = splitPotes(v);
   const row = document.createElement('div');
   row.className = 'example';
   row.innerHTML = `
     <div class="in">Entraram ${fmt(v)}</div>
     <div class="split">
-      <div><div class="amt">${fmt(half)}</div><div class="who a">PRODUÇÃO</div></div>
-      <div><div class="amt">${fmt(half)}</div><div class="who b">FUNDO</div></div>
+      <div><div class="amt">${fmt(poteA)}</div><div class="who a">PRODUÇÃO</div></div>
+      <div><div class="amt">${fmt(poteB)}</div><div class="who b">FUNDO</div></div>
     </div>`;
   growthEl.appendChild(row);
 });
@@ -759,10 +768,20 @@ function render(){
   document.querySelectorAll('.chip').forEach(c => {
     c.classList.toggle('active', Number(c.dataset.val) === currentFund);
   });
-  const poteA = currentFund / 2;
-  const poteB = currentFund / 2;
+  const { poteA, poteB } = splitPotes(currentFund);
   document.getElementById('pote-a-amt').textContent = fmt(poteA);
   document.getElementById('pote-b-amt').textContent = fmt(poteB);
+
+  const noticeEl = document.getElementById('piso-notice');
+  if (poteB === 0){
+    noticeEl.style.display = 'block';
+    noticeEl.textContent = `Esse valor ainda não cobre o piso de produção (${fmt(PISO)}/mês) — tudo vai pra produção, nada pro Fundo ainda.`;
+  } else if (currentFund <= EMPATE){
+    noticeEl.style.display = 'block';
+    noticeEl.textContent = `A produção já está garantida (${fmt(PISO)}). Toda a diferença acima disso vai pro Fundo, até os dois empatarem em ${fmt(EMPATE)}.`;
+  } else {
+    noticeEl.style.display = 'none';
+  }
 
   rowsEl.innerHTML = '';
   participants.forEach(p => {

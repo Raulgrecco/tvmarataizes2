@@ -245,6 +245,8 @@ footer{text-align:center;padding:40px 20px;font-size:14px;color:#ccc;}
       <p style="color:rgba(255,255,255,.75);font-size:14px;font-family:system-ui,Arial,sans-serif;margin:0;">Clique para assistir</p>
     </div>
   </div>
+  <button id="player-reload-btn" onclick="event.stopPropagation();reloadLivePlayer();" style="display:none;margin-top:10px;background:#1a1a1a;color:#fff;border:1px solid #333;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:system-ui,Arial,sans-serif;">🔄 Recarregar Transmissão</button>
+  <p id="player-reload-hint" style="display:none;margin:6px 0 0;font-size:12px;color:rgba(255,255,255,.45);font-family:system-ui,Arial,sans-serif;">Imagem travada ou virou uma página estranha? Clique para recarregar.</p>
 </div>
 
   </div>
@@ -257,12 +259,18 @@ footer{text-align:center;padding:40px 20px;font-size:14px;color:#ccc;}
 /* ════════════════════════════════════════════════════
    CONFIGURAÇÃO DA TRANSMISSÃO AO VIVO
    Embed oficial do RAD.live — código copiado direto do painel deles
-   (Share > Embed), confirmado como o formato correto. Se ainda assim
-   não carregar em produção (tvmarataizes.com.br), o próximo suspeito
-   é domínio não autorizado nas configurações de embed do RAD (muita
-   plataforma de vídeo exige lista de domínios liberados por conteúdo/
-   canal) — não é algo que se resolve no código, precisa checar/
-   cadastrar o domínio direto no painel do RAD.
+   (Share > Embed), confirmado como o formato correto.
+
+   Bug conhecido do player do RAD: depois que o vídeo termina/fica
+   ocioso, o script deles às vezes substitui o conteúdo interno do
+   próprio iframe pelo HTML do nosso site (comprovado via DevTools —
+   o body vira "embed-stream-player-container" com nosso HTML dentro).
+   Não temos como consertar isso pelo lado de dentro (é o JS deles
+   rodando dentro do próprio documento do iframe), mas controlamos o
+   NOSSO <iframe>: o botão "Recarregar Transmissão" destrói e recria
+   o iframe do zero, forçando o player do RAD a carregar de novo do
+   estado inicial. Deliberadamente manual por enquanto (não automático)
+   pra não criar loop de recarregamento se o bug for recorrente.
    ════════════════════════════════════════════════════ */
 var PLAYOUT_CONFIG = {
   radEmbedUrl: 'https://embed.rad.live?id=f7d1b4ee-34de-4f9a-9417-21f55e115433&type=stream'
@@ -285,6 +293,11 @@ function renderLivePlayer(wrapper,options){
   iframe.className='radtv-player';
   iframe.style.cssText='width:100%;height:100%;border:0;aspect-ratio:16/9;';
   wrapper.appendChild(iframe);
+
+  var btn=document.getElementById('player-reload-btn');
+  var hint=document.getElementById('player-reload-hint');
+  if(btn){ btn.style.display='inline-block'; }
+  if(hint){ hint.style.display='block'; }
 }
 
 function loadLivePlayer(){
@@ -295,6 +308,13 @@ function loadLivePlayer(){
   overlay.style.display='none';
   wrapper.style.cursor='default';
   wrapper.onclick=null;
+}
+
+// Recarrega só o player, sem dar F5 na página inteira.
+function reloadLivePlayer(){
+  var wrapper=document.getElementById('player-wrapper');
+  if(!wrapper)return;
+  renderLivePlayer(wrapper,{muted:true});
 }
 </script>
 

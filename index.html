@@ -253,34 +253,68 @@ footer{text-align:center;padding:40px 20px;font-size:14px;color:#ccc;}
 @keyframes livepulse{0%,100%{box-shadow:0 0 0 0 rgba(255,111,0,.5);}60%{box-shadow:0 0 0 22px rgba(255,111,0,0);}}
 @keyframes blinklive{0%,100%{opacity:1;}50%{opacity:.2;}}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js"></script>
 <script>
 /* ════════════════════════════════════════════════════
    CONFIGURAÇÃO DA TRANSMISSÃO AO VIVO
-   Migrado do Castr para origem própria (MediaMTX/VPS).
-   Requer player HLS (hls.js) — ver rscBuildHlsPlayerDoc() abaixo,
-   função já definida mais adiante neste mesmo arquivo.
+   Origem própria (MediaMTX/VPS), tocada direto na página com
+   hls.js — SEM iframe. Um iframe (mesmo com srcdoc) cria uma
+   origem opaca (null) pro navegador, o que quebra o cookie de
+   sessão do MediaMTX (cookieCheck / SameSite=None; Partitioned).
+   Tocando direto no <video> da própria página, o cookie flui
+   igual a quando se abre a URL direto numa aba — que já provamos
+   que funciona.
    ════════════════════════════════════════════════════ */
 var PLAYOUT_CONFIG = {
   liveUrl: 'https://stream.tvmarataizes.com.br/tv/tvmarataizes/index.m3u8'
 };
 
+var _livePlayerHls = null;
+var _liveStallWatch = null;
+
 // Destrói o player ativo.
 function destroyCurrentPlayer(){
+  if(_liveStallWatch){ clearInterval(_liveStallWatch); _liveStallWatch=null; }
+  if(_livePlayerHls){ _livePlayerHls.destroy(); _livePlayerHls=null; }
   var old=document.getElementById('live-player');
   if(old)old.parentNode.removeChild(old);
 }
 
-// Cria (ou substitui) o player ao vivo — origem própria via HLS (hls.js).
+// Cria (ou substitui) o player ao vivo — <video> direto na página, sem iframe.
 function renderLivePlayer(wrapper,options){
   options=options||{};
   destroyCurrentPlayer();
-  var iframe=document.createElement('iframe');
-  iframe.id='live-player';
-  iframe.allow='autoplay; fullscreen';
-  iframe.allowFullscreen=true;
-  iframe.style.cssText='width:100%;height:100%;border:0;';
-  iframe.srcdoc=rscBuildHlsPlayerDoc(PLAYOUT_CONFIG.liveUrl,{muted:!!options.muted});
-  wrapper.appendChild(iframe);
+  var video=document.createElement('video');
+  video.id='live-player';
+  video.controls=true;
+  video.autoplay=true;
+  video.playsInline=true;
+  video.muted=!!options.muted;
+  video.style.cssText='width:100%;height:100%;background:#000;';
+  wrapper.appendChild(video);
+
+  var src=PLAYOUT_CONFIG.liveUrl;
+
+  function startPlayback(){
+    if(_livePlayerHls){ _livePlayerHls.destroy(); _livePlayerHls=null; }
+    if(video.canPlayType('application/vnd.apple.mpegurl')){
+      video.src=src;
+    } else if(window.Hls && Hls.isSupported()){
+      _livePlayerHls=new Hls();
+      _livePlayerHls.loadSource(src);
+      _livePlayerHls.attachMedia(video);
+    }
+  }
+  startPlayback();
+
+  // vigia de imagem parada: se o OBS cair/voltar e o MediaMTX recriar a
+  // sessão HLS, isso força uma recarga completa do manifesto.
+  var lastT=-1, lastAdv=Date.now();
+  _liveStallWatch=setInterval(function(){
+    if(video.paused||video.seeking) return;
+    if(video.currentTime!==lastT){ lastT=video.currentTime; lastAdv=Date.now(); return; }
+    if(Date.now()-lastAdv>12000){ lastAdv=Date.now(); startPlayback(); }
+  },2000);
 }
 
 function loadLivePlayer(){
@@ -1195,6 +1229,15 @@ function playRedeChannel(key){
   wrapper.style.cursor = 'default';
   wrapper.onclick = null;
 
+  if (key === 'marataizes'){
+    // canal próprio desta página: usa o mesmo player <video> direto (sem iframe)
+    // do topo — evita o problema de origem opaca/cookie de sessão do iframe.
+    renderLivePlayer(wrapper,{muted:false});
+    document.querySelectorAll('.rsc-card').forEach(function(c){ c.classList.toggle('rsc-active', c.dataset.key === key); });
+    wrapper.scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+
   var iframe = document.createElement('iframe');
   iframe.id = 'live-player';
   iframe.setAttribute('allow','autoplay; fullscreen');
@@ -1202,9 +1245,6 @@ function playRedeChannel(key){
   iframe.style.cssText = 'width:100%;height:100%;border:0;';
   if (ch.tipoFonte === 'M3U8_HLS'){
     iframe.srcdoc = rscBuildHlsPlayerDoc(ch.urlEmbed);
-  } else if (key === 'marataizes'){
-    // canal próprio desta página: origem própria via HLS (mesmo stream do topo)
-    iframe.srcdoc = rscBuildHlsPlayerDoc(PLAYOUT_CONFIG.liveUrl,{muted:false});
   } else {
     iframe.src = ch.urlEmbed + (ch.autoplayParam || '');
   }

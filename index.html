@@ -298,22 +298,74 @@ function renderLivePlayer(wrapper,options){
   function startPlayback(){
     if(_livePlayerHls){ _livePlayerHls.destroy(); _livePlayerHls=null; }
     if(video.canPlayType('application/vnd.apple.mpegurl')){
+      // Safari/iOS: HLS nativo, sem hls.js — o próprio SO já reconecta sozinho.
       video.src=src;
     } else if(window.Hls && Hls.isSupported()){
-      _livePlayerHls=new Hls();
+      _livePlayerHls=new Hls({
+        // ── Configuração para LIVE HLS estável, não baixa latência ──
+        lowLatencyMode: false,
+        // Buffer generoso: absorve oscilação de rede sem travar a imagem,
+        // ao custo de alguns segundos a mais de atraso (aceitável pra TV linear).
+        backBufferLength: 30,
+        maxBufferLength: 30,
+        maxMaxBufferLength: 90,
+        maxBufferSize: 90 * 1000 * 1000,
+        maxBufferHole: 0.7,
+        // Fica mais longe da "borda ao vivo", dando folga contra jitter.
+        liveSyncDurationCount: 5,
+        liveMaxLatencyDurationCount: 12,
+        // Retry automático de manifesto (index.m3u8) e dos segmentos/fragmentos,
+        // com backoff, antes de considerar erro fatal.
+        manifestLoadingMaxRetry: 8,
+        manifestLoadingRetryDelay: 1000,
+        manifestLoadingMaxRetryTimeout: 64000,
+        levelLoadingMaxRetry: 8,
+        levelLoadingRetryDelay: 1000,
+        levelLoadingMaxRetryTimeout: 64000,
+        fragLoadingMaxRetry: 8,
+        fragLoadingRetryDelay: 1000,
+        fragLoadingMaxRetryTimeout: 64000,
+      });
       _livePlayerHls.loadSource(src);
       _livePlayerHls.attachMedia(video);
+
+      _livePlayerHls.on(Hls.Events.MANIFEST_PARSED, function(){
+        video.play().catch(function(){ /* autoplay pode exigir interação do usuário */ });
+      });
+
+      // Recuperação automática de erros fatais, sem exigir intervenção manual.
+      _livePlayerHls.on(Hls.Events.ERROR, function(event, data){
+        if(!data || !data.fatal) return;
+        switch(data.type){
+          case Hls.ErrorTypes.NETWORK_ERROR:
+            // Ex.: falha ao buscar manifesto/fragmento. Tenta retomar o
+            // carregamento (hls.js já reencadeia a partir daqui).
+            _livePlayerHls.startLoad();
+            break;
+          case Hls.ErrorTypes.MEDIA_ERROR:
+            // Ex.: erro de decodificação. Tenta recuperar sem recarregar tudo.
+            _livePlayerHls.recoverMediaError();
+            break;
+          default:
+            // Erro não recuperável pelas rotas acima: reinicia o player inteiro
+            // (mesmo mecanismo do vigia de imagem parada, abaixo).
+            startPlayback();
+            break;
+        }
+      });
     }
   }
   startPlayback();
 
-  // vigia de imagem parada: se o OBS cair/voltar e o MediaMTX recriar a
-  // sessão HLS, isso força uma recarga completa do manifesto.
+  // Vigia de imagem parada: rede de segurança final, complementar ao hls.js.
+  // Cobre casos em que o vídeo trava sem gerar um erro "fatal" (ex.: o OBS
+  // caiu/voltou e o MediaMTX recriou a sessão HLS) — força uma recarga
+  // completa do manifesto quando o vídeo não avança por mais de 20s.
   var lastT=-1, lastAdv=Date.now();
   _liveStallWatch=setInterval(function(){
     if(video.paused||video.seeking) return;
     if(video.currentTime!==lastT){ lastT=video.currentTime; lastAdv=Date.now(); return; }
-    if(Date.now()-lastAdv>12000){ lastAdv=Date.now(); startPlayback(); }
+    if(Date.now()-lastAdv>20000){ lastAdv=Date.now(); startPlayback(); }
   },2000);
 }
 

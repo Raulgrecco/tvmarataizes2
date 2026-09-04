@@ -306,77 +306,8 @@ function loadLivePlayer(){
     <h2>🖥️ Outdoor Digital <span class="hl">— Patrocinadores em Destaque</span></h2>
   </div>
   <div class="mz-outdoor-screen">
-    <div id="outdoor-yt-wrap" style="width:100%;height:100%;"></div>
+    <iframe src="https://embed.rad.live?id=anunciantes-loop-tv-marataizes-rNbcBJ&type=feature" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen class="radtv-player" style="width:100%;height:100%;border:0;aspect-ratio:16/9;" title="Outdoor Digital — vitrine de patrocinadores"></iframe>
   </div>
-
-  <script>
-  /* ════════════════════════════════════════════════════
-     OUTDOOR DIGITAL — loop automático de vídeos dos apoiadores,
-     incorporado via YouTube IFrame API (mesmo mecanismo já usado
-     no Palco Brasil): quando um vídeo termina, o próximo já carrega
-     sozinho no mesmo player — o visitante nunca sai do site.
-     Pra adicionar mais vídeos, é só incluir o ID do YouTube na lista
-     abaixo (o ID é o trecho depois de "v=" na URL do vídeo).
-     ════════════════════════════════════════════════════ */
-  var outdoorApoiadores = [
-    'oTX9XfLoEOI'
-  ];
-  var outdoorPlayer = null;
-  var outdoorCurrentIndex = 0;
-
-  // Carrega a API do YouTube uma única vez, mesmo se outra parte da
-  // página (ex.: Palco Brasil) também precisar dela ao mesmo tempo.
-  window._ytApiReadyQueue = window._ytApiReadyQueue || [];
-  window.ensureYouTubeIframeAPI = window.ensureYouTubeIframeAPI || function(callback){
-    if (window.YT && window.YT.Player) { callback(); return; }
-    window._ytApiReadyQueue.push(callback);
-    if (!document.getElementById('yt-iframe-api')) {
-      var tag = document.createElement('script');
-      tag.id = 'yt-iframe-api';
-      tag.src = 'https://www.youtube.com/iframe_api';
-      document.head.appendChild(tag);
-      window.onYouTubeIframeAPIReady = function () {
-        var queue = window._ytApiReadyQueue;
-        window._ytApiReadyQueue = [];
-        queue.forEach(function (cb) { cb(); });
-      };
-    }
-  };
-
-  function startOutdoorLoop(){
-    var wrap = document.getElementById('outdoor-yt-wrap');
-    if (!wrap || !outdoorApoiadores.length) return;
-    wrap.innerHTML = '<div id="outdoor-yt-player"></div>';
-    window.ensureYouTubeIframeAPI(function(){
-      outdoorPlayer = new YT.Player('outdoor-yt-player', {
-        width: '100%',
-        height: '100%',
-        videoId: outdoorApoiadores[outdoorCurrentIndex],
-        playerVars: {
-          autoplay: 1,
-          mute: 1,          // navegador só autoplay se começar mudo
-          controls: 1,
-          rel: 0,           // sem sugestão de vídeo de outros canais ao final
-          modestbranding: 1,// remove o logo grande do YouTube
-          iv_load_policy: 3,// sem anotações/cards
-          playsinline: 1
-        },
-        events: {
-          'onStateChange': function (e) {
-            if (e.data === YT.PlayerState.ENDED) { outdoorNext(); }
-          }
-        }
-      });
-    });
-  }
-  function outdoorNext(){
-    outdoorCurrentIndex = (outdoorCurrentIndex + 1) % outdoorApoiadores.length;
-    if (outdoorPlayer && outdoorPlayer.loadVideoById) {
-      outdoorPlayer.loadVideoById(outdoorApoiadores[outdoorCurrentIndex]);
-    }
-  }
-  startOutdoorLoop();
-  </script>
 
   <div class="mz-sponsors">
     <div class="mz-sp-head">
@@ -2778,6 +2709,23 @@ function loadPalcoTrack(i){
   wrap.innerHTML = '<div id="palco-yt-player"></div>';
   window.ensureYouTubeIframeAPI(function(){ createPalcoPlayer(p.youtube); });
 }
+// Carrega a API do YouTube uma única vez (usada só pelo Palco Brasil agora).
+window.ensureYouTubeIframeAPI = window.ensureYouTubeIframeAPI || function(callback){
+  if (window.YT && window.YT.Player) { callback(); return; }
+  window._ytApiReadyQueue = window._ytApiReadyQueue || [];
+  window._ytApiReadyQueue.push(callback);
+  if (!document.getElementById('yt-iframe-api')) {
+    var tag = document.createElement('script');
+    tag.id = 'yt-iframe-api';
+    tag.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(tag);
+    window.onYouTubeIframeAPIReady = function () {
+      var queue = window._ytApiReadyQueue;
+      window._ytApiReadyQueue = [];
+      queue.forEach(function (cb) { cb(); });
+    };
+  }
+};
 function createPalcoPlayer(videoId){
   palcoPlayer = new YT.Player('palco-yt-player', {
     width: '100%',

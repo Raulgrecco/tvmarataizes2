@@ -253,120 +253,38 @@ footer{text-align:center;padding:40px 20px;font-size:14px;color:#ccc;}
 @keyframes livepulse{0%,100%{box-shadow:0 0 0 0 rgba(255,111,0,.5);}60%{box-shadow:0 0 0 22px rgba(255,111,0,0);}}
 @keyframes blinklive{0%,100%{opacity:1;}50%{opacity:.2;}}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js"></script>
 <script>
 /* ════════════════════════════════════════════════════
    CONFIGURAÇÃO DA TRANSMISSÃO AO VIVO
-   Origem própria (MediaMTX/VPS), tocada direto na página com
-   hls.js — SEM iframe. Um iframe (mesmo com srcdoc) cria uma
-   origem opaca (null) pro navegador, o que quebra o cookie de
-   sessão do MediaMTX (cookieCheck / SameSite=None; Partitioned).
-   Tocando direto no <video> da própria página, o cookie flui
-   igual a quando se abre a URL direto numa aba — que já provamos
-   que funciona.
+   Trocado de player caseiro (hls.js direto na origem MediaMTX) para
+   o embed oficial do RAD.live. Motivo: o RAD já consome esse mesmo
+   stream de origem de forma estável (comprovado — RAD/OBS transmitindo
+   normalmente), e o embed.rad.live é um produto de embed de verdade,
+   feito pra rodar em iframe de terceiro — diferente do endpoint HLS
+   cru do MediaMTX, que nunca foi pensado pra isso. A estabilidade do
+   player passa a depender da infraestrutura do RAD, não da nossa.
    ════════════════════════════════════════════════════ */
 var PLAYOUT_CONFIG = {
-  liveUrl: 'https://stream.tvmarataizes.com.br/tv/tvmarataizes/index.m3u8'
+  radEmbedUrl: 'https://embed.rad.live?id=tv-sul-capixaba-6nZLEg&type=stream'
 };
-
-var _livePlayerHls = null;
-var _liveStallWatch = null;
 
 // Destrói o player ativo.
 function destroyCurrentPlayer(){
-  if(_liveStallWatch){ clearInterval(_liveStallWatch); _liveStallWatch=null; }
-  if(_livePlayerHls){ _livePlayerHls.destroy(); _livePlayerHls=null; }
   var old=document.getElementById('live-player');
   if(old)old.parentNode.removeChild(old);
 }
 
-// Cria (ou substitui) o player ao vivo — <video> direto na página, sem iframe.
+// Cria (ou substitui) o player ao vivo — embed oficial do RAD.live.
 function renderLivePlayer(wrapper,options){
-  options=options||{};
   destroyCurrentPlayer();
-  var video=document.createElement('video');
-  video.id='live-player';
-  video.controls=true;
-  video.autoplay=true;
-  video.playsInline=true;
-  video.muted=!!options.muted;
-  video.style.cssText='width:100%;height:100%;background:#000;';
-  wrapper.appendChild(video);
-
-  var src=PLAYOUT_CONFIG.liveUrl;
-
-  function startPlayback(){
-    if(_livePlayerHls){ _livePlayerHls.destroy(); _livePlayerHls=null; }
-    if(video.canPlayType('application/vnd.apple.mpegurl')){
-      // Safari/iOS: HLS nativo, sem hls.js — o próprio SO já reconecta sozinho.
-      video.src=src;
-    } else if(window.Hls && Hls.isSupported()){
-      _livePlayerHls=new Hls({
-        // ── Configuração para LIVE HLS estável, não baixa latência ──
-        lowLatencyMode: false,
-        // Buffer generoso: absorve oscilação de rede sem travar a imagem,
-        // ao custo de alguns segundos a mais de atraso (aceitável pra TV linear).
-        backBufferLength: 30,
-        maxBufferLength: 30,
-        maxMaxBufferLength: 90,
-        maxBufferSize: 90 * 1000 * 1000,
-        maxBufferHole: 0.7,
-        // Fica mais longe da "borda ao vivo", dando folga contra jitter.
-        liveSyncDurationCount: 5,
-        liveMaxLatencyDurationCount: 12,
-        // Retry automático de manifesto (index.m3u8) e dos segmentos/fragmentos,
-        // com backoff, antes de considerar erro fatal.
-        manifestLoadingMaxRetry: 8,
-        manifestLoadingRetryDelay: 1000,
-        manifestLoadingMaxRetryTimeout: 64000,
-        levelLoadingMaxRetry: 8,
-        levelLoadingRetryDelay: 1000,
-        levelLoadingMaxRetryTimeout: 64000,
-        fragLoadingMaxRetry: 8,
-        fragLoadingRetryDelay: 1000,
-        fragLoadingMaxRetryTimeout: 64000,
-      });
-      _livePlayerHls.loadSource(src);
-      _livePlayerHls.attachMedia(video);
-
-      _livePlayerHls.on(Hls.Events.MANIFEST_PARSED, function(){
-        video.play().catch(function(){ /* autoplay pode exigir interação do usuário */ });
-      });
-
-      // Recuperação automática de erros fatais, sem exigir intervenção manual.
-      _livePlayerHls.on(Hls.Events.ERROR, function(event, data){
-        if(!data || !data.fatal) return;
-        switch(data.type){
-          case Hls.ErrorTypes.NETWORK_ERROR:
-            // Ex.: falha ao buscar manifesto/fragmento. Tenta retomar o
-            // carregamento (hls.js já reencadeia a partir daqui).
-            _livePlayerHls.startLoad();
-            break;
-          case Hls.ErrorTypes.MEDIA_ERROR:
-            // Ex.: erro de decodificação. Tenta recuperar sem recarregar tudo.
-            _livePlayerHls.recoverMediaError();
-            break;
-          default:
-            // Erro não recuperável pelas rotas acima: reinicia o player inteiro
-            // (mesmo mecanismo do vigia de imagem parada, abaixo).
-            startPlayback();
-            break;
-        }
-      });
-    }
-  }
-  startPlayback();
-
-  // Vigia de imagem parada: rede de segurança final, complementar ao hls.js.
-  // Cobre casos em que o vídeo trava sem gerar um erro "fatal" (ex.: o OBS
-  // caiu/voltou e o MediaMTX recriou a sessão HLS) — força uma recarga
-  // completa do manifesto quando o vídeo não avança por mais de 20s.
-  var lastT=-1, lastAdv=Date.now();
-  _liveStallWatch=setInterval(function(){
-    if(video.paused||video.seeking) return;
-    if(video.currentTime!==lastT){ lastT=video.currentTime; lastAdv=Date.now(); return; }
-    if(Date.now()-lastAdv>20000){ lastAdv=Date.now(); startPlayback(); }
-  },2000);
+  var iframe=document.createElement('iframe');
+  iframe.id='live-player';
+  iframe.src=PLAYOUT_CONFIG.radEmbedUrl;
+  iframe.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
+  iframe.allowFullscreen=true;
+  iframe.className='radtv-player';
+  iframe.style.cssText='width:100%;height:100%;border:0;aspect-ratio:16/9;';
+  wrapper.appendChild(iframe);
 }
 
 function loadLivePlayer(){
@@ -388,8 +306,77 @@ function loadLivePlayer(){
     <h2>🖥️ Outdoor Digital <span class="hl">— Patrocinadores em Destaque</span></h2>
   </div>
   <div class="mz-outdoor-screen">
-    <iframe src="https://rad.live/watch/feature/anunciantes-loop-tv-marataizes-rNbcBJ/" allow="autoplay; fullscreen" allowfullscreen autoplay muted loop playsinline loading="lazy" title="Outdoor Digital — vitrine de patrocinadores"></iframe>
+    <div id="outdoor-yt-wrap" style="width:100%;height:100%;"></div>
   </div>
+
+  <script>
+  /* ════════════════════════════════════════════════════
+     OUTDOOR DIGITAL — loop automático de vídeos dos apoiadores,
+     incorporado via YouTube IFrame API (mesmo mecanismo já usado
+     no Palco Brasil): quando um vídeo termina, o próximo já carrega
+     sozinho no mesmo player — o visitante nunca sai do site.
+     Pra adicionar mais vídeos, é só incluir o ID do YouTube na lista
+     abaixo (o ID é o trecho depois de "v=" na URL do vídeo).
+     ════════════════════════════════════════════════════ */
+  var outdoorApoiadores = [
+    'oTX9XfLoEOI'
+  ];
+  var outdoorPlayer = null;
+  var outdoorCurrentIndex = 0;
+
+  // Carrega a API do YouTube uma única vez, mesmo se outra parte da
+  // página (ex.: Palco Brasil) também precisar dela ao mesmo tempo.
+  window._ytApiReadyQueue = window._ytApiReadyQueue || [];
+  window.ensureYouTubeIframeAPI = window.ensureYouTubeIframeAPI || function(callback){
+    if (window.YT && window.YT.Player) { callback(); return; }
+    window._ytApiReadyQueue.push(callback);
+    if (!document.getElementById('yt-iframe-api')) {
+      var tag = document.createElement('script');
+      tag.id = 'yt-iframe-api';
+      tag.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(tag);
+      window.onYouTubeIframeAPIReady = function () {
+        var queue = window._ytApiReadyQueue;
+        window._ytApiReadyQueue = [];
+        queue.forEach(function (cb) { cb(); });
+      };
+    }
+  };
+
+  function startOutdoorLoop(){
+    var wrap = document.getElementById('outdoor-yt-wrap');
+    if (!wrap || !outdoorApoiadores.length) return;
+    wrap.innerHTML = '<div id="outdoor-yt-player"></div>';
+    window.ensureYouTubeIframeAPI(function(){
+      outdoorPlayer = new YT.Player('outdoor-yt-player', {
+        width: '100%',
+        height: '100%',
+        videoId: outdoorApoiadores[outdoorCurrentIndex],
+        playerVars: {
+          autoplay: 1,
+          mute: 1,          // navegador só autoplay se começar mudo
+          controls: 1,
+          rel: 0,           // sem sugestão de vídeo de outros canais ao final
+          modestbranding: 1,// remove o logo grande do YouTube
+          iv_load_policy: 3,// sem anotações/cards
+          playsinline: 1
+        },
+        events: {
+          'onStateChange': function (e) {
+            if (e.data === YT.PlayerState.ENDED) { outdoorNext(); }
+          }
+        }
+      });
+    });
+  }
+  function outdoorNext(){
+    outdoorCurrentIndex = (outdoorCurrentIndex + 1) % outdoorApoiadores.length;
+    if (outdoorPlayer && outdoorPlayer.loadVideoById) {
+      outdoorPlayer.loadVideoById(outdoorApoiadores[outdoorCurrentIndex]);
+    }
+  }
+  startOutdoorLoop();
+  </script>
 
   <div class="mz-sponsors">
     <div class="mz-sp-head">
@@ -2789,18 +2776,7 @@ function loadPalcoTrack(i){
   document.getElementById('palco-watch-breadcrumb').textContent='PALCO BRASIL · '+p.duracao;
   var wrap = document.getElementById('palco-watch-player-wrap');
   wrap.innerHTML = '<div id="palco-yt-player"></div>';
-  if(window.YT && window.YT.Player){
-    createPalcoPlayer(p.youtube);
-  } else {
-    window.onPalcoYouTubeReady = function(){ createPalcoPlayer(p.youtube); };
-    if(!document.getElementById('yt-iframe-api')){
-      var tag=document.createElement('script');
-      tag.id='yt-iframe-api';
-      tag.src='https://www.youtube.com/iframe_api';
-      document.head.appendChild(tag);
-      window.onYouTubeIframeAPIReady = function(){ window.onPalcoYouTubeReady(); };
-    }
-  }
+  window.ensureYouTubeIframeAPI(function(){ createPalcoPlayer(p.youtube); });
 }
 function createPalcoPlayer(videoId){
   palcoPlayer = new YT.Player('palco-yt-player', {

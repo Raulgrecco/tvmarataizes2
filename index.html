@@ -256,13 +256,13 @@ footer{text-align:center;padding:40px 20px;font-size:14px;color:#ccc;}
 <script>
 /* ════════════════════════════════════════════════════
    CONFIGURAÇÃO DA TRANSMISSÃO AO VIVO
-   Trocado de player caseiro (hls.js direto na origem MediaMTX) para
-   o embed oficial do RAD.live. Motivo: o RAD já consome esse mesmo
-   stream de origem de forma estável (comprovado — RAD/OBS transmitindo
-   normalmente), e o embed.rad.live é um produto de embed de verdade,
-   feito pra rodar em iframe de terceiro — diferente do endpoint HLS
-   cru do MediaMTX, que nunca foi pensado pra isso. A estabilidade do
-   player passa a depender da infraestrutura do RAD, não da nossa.
+   Embed oficial do RAD.live — código copiado direto do painel deles
+   (Share > Embed), confirmado como o formato correto. Se ainda assim
+   não carregar em produção (tvmarataizes.com.br), o próximo suspeito
+   é domínio não autorizado nas configurações de embed do RAD (muita
+   plataforma de vídeo exige lista de domínios liberados por conteúdo/
+   canal) — não é algo que se resolve no código, precisa checar/
+   cadastrar o domínio direto no painel do RAD.
    ════════════════════════════════════════════════════ */
 var PLAYOUT_CONFIG = {
   radEmbedUrl: 'https://embed.rad.live?id=tv-sul-capixaba-6nZLEg&type=stream'
@@ -291,7 +291,6 @@ function loadLivePlayer(){
   var wrapper=document.getElementById('player-wrapper');
   var overlay=document.getElementById('player-overlay');
   if(!overlay||overlay.style.display==='none')return;
-  // Cria o player só agora — nada no DOM antes do clique
   renderLivePlayer(wrapper,{muted:true});
   overlay.style.display='none';
   wrapper.style.cursor='default';

@@ -114,6 +114,12 @@ nav {
 
 /* ── PLANS GRID ── */
 .plans-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-bottom: 1.5rem; }
+.plans-grid-4 { grid-template-columns: repeat(4, 1fr); }
+.plans-grid-1 { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto 1.5rem; }
+.plan-card.giro-featured { background: #191919; }
+.plan-card.giro-featured::before { content: 'PRESENÇA SEMANAL'; position: absolute; top: 0; left: 50%; transform: translateX(-50%); background: var(--red-tv); color: var(--white); font-size: 0.58rem; font-weight: 700; letter-spacing: 0.15em; padding: 0.28rem 1rem; border-radius: 0 0 4px 4px; white-space: nowrap; }
+.plan-card.giro-featured::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--red-tv); }
+.plan-card.giro-featured .plan-price-number { color: var(--red-tv); }
 .plan-card { background: var(--card); padding: 2.2rem 2rem; position: relative; transition: background 0.2s; display: flex; flex-direction: column; }
 .plan-card:hover { background: #222222; }
 .plan-card.featured { background: #191919; }
@@ -261,12 +267,16 @@ footer a:hover { color: var(--white); }
   .diff-bar { flex-direction: column; }
   .nav-links { display: none; }
   .plans-grid { grid-template-columns: 1fr; }
+  .plans-grid-4 { grid-template-columns: 1fr; }
   .steps-grid { grid-template-columns: 1fr 1fr; }
   .stats-bar { flex-wrap: wrap; gap: 2rem; }
   .stat-item { border-right: none; padding: 0 1.5rem; }
   .bridge-inner { grid-template-columns: 1fr; gap: 2rem; }
   .proof-strip { flex-direction: column; align-items: flex-start; }
   .proof-strip-stat { margin-left: 0; text-align: left; }
+}
+@media (max-width: 1000px) and (min-width: 769px) {
+  .plans-grid-4 { grid-template-columns: repeat(2, 1fr); }
 }
 </style>
 </head>
@@ -321,7 +331,7 @@ footer a:hover { color: var(--white); }
     <div class="diff-col">
       <div class="diff-col-title">📺 TV Marataízes</div>
       <ul>
-        <li>Canal 300 da Soul TV — ao vivo, 24h</li>
+        <li>Canal 300 da Soul TV, iNNova TV e RAD TV — ao vivo, 24h</li>
         <li>Instagram com presença diária na cidade</li>
         <li>A única TV independente do ES no ar nacionalmente</li>
       </ul>
@@ -403,10 +413,10 @@ footer a:hover { color: var(--white); }
         </ul>
       </div>
       <div class="diff-col">
-        <div class="diff-col-title">Canal 300 · Soul TV</div>
+        <div class="diff-col-title">Soul TV · iNNova TV · RAD TV</div>
         <ul>
           <li>Única TV independente do ES no ar nacionalmente</li>
-          <li>Transmissão ao vivo, 24 horas por dia</li>
+          <li>Transmissão ao vivo, 24 horas por dia, nas três plataformas</li>
           <li>Ao lado de CNN Brasil, Record News e TV UOL</li>
         </ul>
       </div>
@@ -454,9 +464,9 @@ footer a:hover { color: var(--white); }
 
 <!-- ── PLANOS ── -->
 <section class="section" id="planos">
-  <div class="section-label">Agora sim, os planos</div>
-  <h2 class="section-title">Não vendemos espaço.<br><em>Construímos presença.</em></h2>
-  <p class="section-desc">A TV atrai audiência. O Portal organiza a informação. O Guia conecta moradores, turistas e empresas. Cada ferramenta da rede tem um papel — escolha o seu ponto de entrada.</p>
+  <div class="section-label">Escolha o nível de presença</div>
+  <h2 class="section-title">Comunicação, conteúdo<br>e <em>presença regional.</em></h2>
+  <p class="section-desc">Uma operação de comunicação regional de verdade — não uma tabela de stories avulsos. Cada nível é um jeito diferente da sua empresa aparecer, do mapa digital permanente à presença semanal em vídeo.</p>
 
   <div class="proof-strip" style="margin-bottom: 2.5rem;">
     <div class="proof-strip-icon">🗺️</div>
@@ -470,16 +480,16 @@ footer a:hover { color: var(--white); }
     </div>
   </div>
 
-  <div class="plans-grid">
+  <div class="plans-grid plans-grid-4">
 
-    <!-- PRESENÇA DIGITAL R$2.290 À VISTA / 10X R$250 (ANUAL) -->
+    <!-- PRESENÇA DIGITAL R$250/MÊS -->
     <div class="plan-card">
-      <div class="plan-tag">Anual · Indexado pelo Google</div>
+      <div class="plan-tag">Porta de entrada</div>
       <div class="plan-name">Presença Digital</div>
-      <p class="plan-tagline">Sua empresa passa a fazer parte do mapa comercial digital da cidade, com produção de vídeo profissional inclusa. Enquanto um post dura alguns dias, sua página continua sendo encontrada por moradores, turistas e pelo Google durante todo o ano.</p>
+      <p class="plan-tagline">Sua empresa passa a fazer parte do mapa comercial digital da cidade. Enquanto um post dura alguns dias, sua página continua sendo encontrada por moradores, turistas e pelo Google.</p>
       <div class="plan-price">
-        <div class="plan-price-number"><span class="plan-price-currency">10x de R$</span>250</div>
-        <span class="plan-price-period">plano anual (sem mensalidade contínua) · ou R$2.290 à vista</span>
+        <div class="plan-price-number"><span class="plan-price-currency">R$</span>250</div>
+        <span class="plan-price-period">por mês</span>
       </div>
       <ul class="plan-features">
         <li>Página própria no Guia Digital</li>
@@ -490,48 +500,66 @@ footer a:hover { color: var(--white); }
           <span class="url-pill">tvmarataizes.digital/seuNegocio ou tvpiuma.com.br/seuNegocio</span>
         </li>
         <li>Categoria do seu segmento</li>
-        <li>Hospedagem e manutenção básica incluídas</li>
         <li class="highlight">1 filmagem profissional no local</li>
         <li class="highlight">1 story no Instagram da TV Marataízes ou da TV Piúma</li>
         <li>Publicado em até 24 horas</li>
       </ul>
-      <a href="https://wa.me/5528999036141?text=Quero+Presença+Digital+R$2.290+à+vista+ou+10x+de+R$250+-+TV+Marataízes" class="plan-cta plan-cta-ghost">Quero Presença Digital</a>
+      <a href="https://wa.me/5528999036141?text=Quero+Presença+Digital+R$250/mês+-+TV+Marataízes" class="plan-cta plan-cta-ghost">Quero anunciar</a>
     </div>
 
-    <!-- DESTAQUE REGIONAL R$349/MÊS -->
-    <div class="plan-card featured">
-      <div class="plan-tag">O que mais gera lembrança</div>
-      <div class="plan-name">Destaque Regional</div>
-      <p class="plan-tagline">Sua empresa aparece de forma recorrente para a audiência da TV Marataízes ou da TV Piúma, mantendo presença constante na memória dos clientes.</p>
+    <!-- GIRO SEMANAL R$600/MÊS -->
+    <div class="plan-card giro-featured">
+      <div class="plan-tag">Presença semanal · TV + redes</div>
+      <div class="plan-name">Giro Semanal</div>
+      <p class="plan-tagline">Seu negócio participa toda semana do Giro Semanal — um quadro fixo em que visitamos um comércio diferente, com produção profissional e distribuição nos canais da rede. Não é uma publicação isolada. É presença contínua.</p>
       <div class="plan-price">
-        <div class="plan-price-number"><span class="plan-price-currency">R$</span>349</div>
-        <span class="plan-price-period">por mês · mínimo 3 meses</span>
+        <div class="plan-price-number"><span class="plan-price-currency">R$</span>600</div>
+        <span class="plan-price-period">por mês</span>
+      </div>
+      <ul class="plan-features">
+        <li class="highlight">Seu negócio aparece toda semana</li>
+        <li class="highlight">Produção profissional no local — captação e edição</li>
+        <li>Distribuição no Instagram da TV Marataízes ou da TV Piúma</li>
+        <li>Uma nova oportunidade, toda semana, para mostrar oferta, produto ou novidade</li>
+      </ul>
+      <a href="https://wa.me/5528999036141?text=Quero+participar+do+Giro+Semanal+R$600/mês+-+TV+Marataízes" class="plan-cta plan-cta-red">Quero participar do Giro Semanal</a>
+    </div>
+
+    <!-- DESTAQUE REGIONAL R$799/MÊS -->
+    <div class="plan-card">
+      <div class="plan-tag">Visibilidade recorrente</div>
+      <div class="plan-name">Destaque Regional</div>
+      <p class="plan-tagline">Sua empresa aparece de forma recorrente para a audiência da TV Marataízes ou da TV Piúma, com destaque de categoria e presença constante na memória dos clientes.</p>
+      <div class="plan-price">
+        <div class="plan-price-number"><span class="plan-price-currency">R$</span>799</div>
+        <span class="plan-price-period">por mês</span>
       </div>
       <ul class="plan-features">
         <li>Tudo do Presença Digital</li>
-        <li class="highlight">2 stories/semana — Instagram da TV Marataízes ou da TV Piúma</li>
+        <li class="highlight">3 stories/semana — Instagram da TV Marataízes ou da TV Piúma</li>
         <li class="highlight">Selo Comércio Parceiro da Rede</li>
         <li class="highlight">Destaque no topo da categoria</li>
       </ul>
-      <a href="https://wa.me/5528999036141?text=Quero+o+Destaque+Regional+R$349+-+TV+Marataízes" class="plan-cta plan-cta-gold">Quero Destaque Regional</a>
+      <a href="https://wa.me/5528999036141?text=Quero+o+Destaque+Regional+R$799/mês+-+TV+Marataízes" class="plan-cta plan-cta-ghost">Quero anunciar</a>
     </div>
 
-    <!-- AUTORIDADE REGIONAL R$799/MÊS -->
+    <!-- AUTORIDADE REGIONAL R$1.500/MÊS -->
     <div class="plan-card">
-      <div class="plan-tag">Presença máxima</div>
+      <div class="plan-tag">Gestão contínua</div>
       <div class="plan-name">Autoridade Regional</div>
-      <p class="plan-tagline">Para empresas que querem aparecer com mais frequência, fortalecer autoridade e ocupar espaço constante na mente do público.</p>
+      <p class="plan-tagline">O primeiro passo pra sair da lógica de campanha. Gestão contínua do seu Instagram e presença recorrente na rede, todo mês, sem você ter que lembrar de renovar nada.</p>
       <div class="plan-price">
-        <div class="plan-price-number"><span class="plan-price-currency">R$</span>799</div>
-        <span class="plan-price-period">por mês · mínimo 3 meses</span>
+        <div class="plan-price-number"><span class="plan-price-currency">R$</span>1.500</div>
+        <span class="plan-price-period">por mês</span>
       </div>
       <ul class="plan-features">
         <li>Tudo do Destaque Regional</li>
-        <li class="highlight">3 stories/semana — Instagram da TV Marataízes ou da TV Piúma</li>
-        <li class="highlight">1 publicação editorial no portal por trimestre</li>
-        <li class="highlight">Destaque permanente na categoria</li>
+        <li class="highlight">Gestão do Instagram da sua empresa</li>
+        <li class="highlight">4 posts/mês — criação, arte e copy estratégico</li>
+        <li>Relatório mensal de resultados</li>
+        <li>Atendimento direto com a equipe Macuca</li>
       </ul>
-      <a href="https://wa.me/5528999036141?text=Quero+a+Autoridade+Regional+R$799+-+TV+Marataízes" class="plan-cta plan-cta-ghost">Quero Autoridade Regional</a>
+      <a href="https://wa.me/5528999036141?text=Quero+a+Autoridade+Regional+R$1.500/mês+-+TV+Marataízes" class="plan-cta plan-cta-ghost">Quero anunciar</a>
     </div>
 
   </div>
@@ -545,43 +573,7 @@ footer a:hover { color: var(--white); }
     </div>
   </div>
 
-  <div class="plans-grid" style="margin-bottom:0;">
-
-    <!-- STORY PATROCINADO R$50 -->
-    <div class="plan-card">
-      <div class="plan-tag">Avulso · Pagamento único</div>
-      <div class="plan-name">Story Patrocinado</div>
-      <p class="plan-tagline">Divulgação pontual no Instagram da TV Marataízes ou TV Piúma.</p>
-      <div class="plan-price">
-        <div class="plan-price-number" style="font-size:clamp(1.6rem,3vw,2.2rem);"><span class="plan-price-currency">a partir de R$</span>50</div>
-        <span class="plan-price-period">por story · consulte disponibilidade</span>
-      </div>
-      <ul class="plan-features">
-        <li class="highlight">Promoções</li>
-        <li class="highlight">Datas comemorativas</li>
-        <li class="highlight">Novos produtos</li>
-        <li class="highlight">Campanhas de vendas</li>
-      </ul>
-      <a href="https://wa.me/5528999036141?text=Quero+um+Story+Patrocinado+R$50+-+TV+Marataízes" class="plan-cta plan-cta-ghost">Quero esse story</a>
-    </div>
-
-    <!-- PACOTE PROMOCIONAL R$120 -->
-    <div class="plan-card featured">
-      <div class="plan-tag">Mais escolhido</div>
-      <div class="plan-name">Pacote Promocional</div>
-      <p class="plan-tagline">3 stories patrocinados. Ideal para campanhas que precisam permanecer mais tempo na memória do público.</p>
-      <div class="plan-price">
-        <div class="plan-price-number"><span class="plan-price-currency">R$</span>120</div>
-        <span class="plan-price-period">3 stories · pagamento único</span>
-      </div>
-      <ul class="plan-features">
-        <li class="highlight">3 publicações no Instagram da TV</li>
-        <li>Presença contínua durante a campanha</li>
-        <li>Maior fixação na memória do público</li>
-        <li>TV Marataízes ou TV Piúma — você escolhe</li>
-      </ul>
-      <a href="https://wa.me/5528999036141?text=Quero+o+Pacote+Promocional+R$120+-+TV+Marataízes" class="plan-cta plan-cta-gold">Quero esse pacote</a>
-    </div>
+  <div class="plans-grid plans-grid-1" style="margin-bottom:0;">
 
     <!-- PRODUÇÃO COMERCIAL LOCAL R$500 -->
     <div class="plan-card">
@@ -678,45 +670,26 @@ footer a:hover { color: var(--white); }
       </div>
     </div>
 
-    <div class="tv-plans-grid">
+    <div class="tv-plans-grid-2col">
 
-      <!-- PRESENÇA REGIONAL R$1.500 -->
-      <div class="tv-plan-card">
-        <div class="tv-badge">Gestão contínua · Entrada</div>
-        <div class="tv-plan-name">Presença Regional</div>
-        <p class="tv-plan-sub">O primeiro passo pra sair da lógica de campanha. Gestão contínua do seu Instagram e presença recorrente na rede, todo mês, sem você ter que lembrar de renovar nada.</p>
-        <div class="tv-price-row">
-          <div class="tv-price-main">1.500</div>
-          <div class="tv-price-detail">R$ por mês<br><span style="color: var(--gray); font-size:0.75rem;">mínimo 3 meses</span></div>
-        </div>
-        <ul class="tv-features">
-          <li class="tv-highlight">Gestão do Instagram da sua empresa</li>
-          <li class="tv-highlight">2 stories/semana — Instagram da TV Marataízes ou da TV Piúma</li>
-          <li>4 posts/mês — criação, arte e copy estratégico</li>
-          <li>Relatório mensal de resultados</li>
-          <li>Atendimento direto com a equipe Macuca</li>
-        </ul>
-        <a href="https://wa.me/5528999036141?text=Quero+o+Plano+Presença+Regional+R$1.500+-+Macuca+Produções" class="tv-cta tv-cta-main">Quero esse plano</a>
-      </div>
-
-      <!-- AUTORIDADE REGIONAL R$2.500 -->
+      <!-- GESTÃO + CONTEÚDO R$2.500 -->
       <div class="tv-plan-card tv-featured">
-        <div class="tv-badge">Gestão contínua · Mais escolhido</div>
-        <div class="tv-plan-name">Autoridade Regional</div>
+        <div class="tv-badge">Gestão contínua · Operação completa</div>
+        <div class="tv-plan-name">Gestão + Conteúdo</div>
         <p class="tv-plan-sub">Pra quem quer ser reconhecido, não só visto. Presença ativa em mais de um canal da rede, com produção de conteúdo profissional todo mês.</p>
         <div class="tv-price-row">
           <div class="tv-price-main">2.500</div>
-          <div class="tv-price-detail">R$ por mês<br><span style="color: var(--gray); font-size:0.75rem;">mínimo 3 meses · sem setup</span></div>
+          <div class="tv-price-detail">R$ por mês</div>
         </div>
         <ul class="tv-features">
-          <li class="tv-highlight">Tudo do Presença Regional</li>
+          <li class="tv-highlight">Tudo do Autoridade Regional</li>
           <li class="tv-highlight">3 stories/semana — Instagram da TV Marataízes ou da TV Piúma</li>
           <li class="tv-highlight">Stories diários no Instagram da sua empresa</li>
           <li class="tv-highlight">1 inserção mensal na grade do Canal 300</li>
           <li>1 vídeo profissional produzido por mês</li>
           <li>Identidade de voz e posicionamento de marca</li>
         </ul>
-        <a href="https://wa.me/5528999036141?text=Quero+o+Plano+Autoridade+Regional+R$2.500+-+Macuca+Produções" class="tv-cta tv-cta-gold">Quero esse plano</a>
+        <a href="https://wa.me/5528999036141?text=Quero+o+Plano+Gestão+e+Conteúdo+R$2.500+-+Macuca+Produções" class="tv-cta tv-cta-gold">Quero esse plano</a>
       </div>
 
       <!-- DOMINÂNCIA REGIONAL R$5.000 -->
@@ -726,10 +699,10 @@ footer a:hover { color: var(--white); }
         <p class="tv-plan-sub">O topo da rede. Exclusividade total no seu segmento — nenhum concorrente seu aparece na grade. Você não disputa atenção. Você é a referência.</p>
         <div class="tv-price-row">
           <div class="tv-price-main">5.000</div>
-          <div class="tv-price-detail">R$ por mês<br><span style="color: var(--gray); font-size:0.75rem;">mínimo 6 meses</span></div>
+          <div class="tv-price-detail">R$ por mês</div>
         </div>
         <ul class="tv-features">
-          <li class="tv-highlight">Tudo do Autoridade Regional</li>
+          <li class="tv-highlight">Tudo do Gestão + Conteúdo</li>
           <li class="tv-highlight">Stories todos os dias — TV Sul Capixaba, TV Marataízes e TV Piúma</li>
           <li class="tv-highlight">Exclusividade total no segmento — zero concorrência no ar</li>
           <li class="tv-highlight">Inserções semanais na grade do Canal 300</li>
@@ -786,14 +759,14 @@ footer a:hover { color: var(--white); }
   <h2>Seu concorrente<br>já está olhando<br><em>para isso.</em></h2>
   <p>A decisão é sua. Mas ela não espera.</p>
   <div class="final-actions">
-    <a href="#planos" class="btn-ghost">Guia Digital — a partir de R$2.290/ano</a>
+    <a href="#planos" class="btn-ghost">Presença Digital — a partir de R$250/mês</a>
     <a href="https://wa.me/5528999036141?text=Quero+o+Plano+Institucional+Regional+-+TV+Marataízes" class="btn-primary">Institucional Regional — falar agora</a>
   </div>
 </section>
 
 <!-- ── FOOTER ── -->
 <footer>
-  <p>© 2026 TV Marataízes · Canal 300 Soul TV · Marataízes ES · (28) 99903-6141 ·
+  <p>© 2026 TV Marataízes · Canal 300 Soul TV · iNNova TV · RAD TV · Marataízes ES · (28) 99903-6141 ·
     <a href="https://tvmarataizes.digital">Portal</a> ·
     <a href="https://instagram.com/tvmarataizes">Instagram</a> ·
     <a href="https://wa.me/5528999036141">WhatsApp</a>

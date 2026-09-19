@@ -393,7 +393,7 @@ function renderLivePlayer(wrapper,options){
   iframe.setAttribute('allow','autoplay; fullscreen; picture-in-picture');
   iframe.allowFullscreen=true;
   iframe.className='radtv-player';
-  iframe.style.cssText='width:100%;height:100%;border:0;aspect-ratio:16/9;';
+  iframe.style.cssText='width:100%;height:100%;border:0;position:absolute;inset:0;';
   wrapper.appendChild(iframe);
 
   var btn=document.getElementById('player-reload-btn');
@@ -2936,7 +2936,7 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closeVodModa
   function isLive(){var el=getIframe();return el&&el.src&&el.src!==''&&el.src!=='about:blank';}
   // Fonte única (Castr), 24h — sempre pode recarregar em caso de travamento.
   function freshSrc(){
-    return PLAYOUT_CONFIG.liveUrl+'?autoplay=1&_t='+Date.now();
+    return PLAYOUT_CONFIG.radEmbedUrl+'&_t='+Date.now();
   }
 
   function reloadPlayer(){

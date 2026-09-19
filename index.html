@@ -420,46 +420,15 @@ function reloadLivePlayer(){
 }
 </script>
 
-<!-- OUTDOOR DIGITAL — vitrine em loop + patrocinadores em destaque -->
+<!-- OUTDOOR DIGITAL — vitrine de patrocinadores -->
 <div class="mz-outdoor" id="outdoor-digital">
   <div class="mz-outdoor-head">
     <span class="mz-outdoor-live">AO VIVO</span>
     <h2>🖥️ Outdoor Digital <span class="hl">— Patrocinadores em Destaque</span></h2>
   </div>
-  <div class="mz-outdoor-screen" style="position:relative;">
-    <div class="mz-outdoor-track" id="outdoorTrack">
-      <div class="mz-outdoor-slide">
-        <iframe src="https://embed.rad.live?id=8085ba56-3528-4df1-bd11-2e61fba9cc37&type=feature&autoplay=1&muted=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen class="radtv-player" title="Outdoor Digital — vitrine de patrocinadores"></iframe>
-      </div>
-      <div class="mz-outdoor-slide">
-        <iframe src="https://rad.live/embed/feature/c79f3ebf-6482-48c8-835f-712c35c0ce55/" allow="autoplay; fullscreen; picture-in-picture; encrypted-media; gyroscope; accelerometer; xr-spatial-tracking" allowfullscreen class="radtv-player" title="TV Marataízes — Promo"></iframe>
-      </div>
-      <div class="mz-outdoor-slide mz-outdoor-empty">
-        <span style="font-size:20px;">🎬</span>
-        <span>Em breve</span>
-      </div>
-    </div>
-    <div class="mz-outdoor-nav mz-od-prev" onclick="outdoorGo(-1)">&#8249;</div>
-    <div class="mz-outdoor-nav mz-od-next" onclick="outdoorGo(1)">&#8250;</div>
+  <div class="mz-outdoor-screen">
+    <iframe src="https://embed.rad.live?id=8085ba56-3528-4df1-bd11-2e61fba9cc37&type=feature&autoplay=1&muted=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen class="radtv-player" title="Outdoor Digital — vitrine de patrocinadores"></iframe>
   </div>
-  <div class="mz-outdoor-dots" id="outdoorDots">
-    <div class="mz-outdoor-dot active" onclick="outdoorGoto(0)"></div>
-    <div class="mz-outdoor-dot" onclick="outdoorGoto(1)"></div>
-    <div class="mz-outdoor-dot" onclick="outdoorGoto(2)"></div>
-  </div>
-  <script>
-  var outdoorIndex=0;
-  function outdoorRender(){
-    var track=document.getElementById('outdoorTrack');
-    if(!track)return;
-    track.style.transform='translateX(-'+(outdoorIndex*33.3333)+'%)';
-    var dots=document.querySelectorAll('#outdoorDots .mz-outdoor-dot');
-    dots.forEach(function(d,i){d.classList.toggle('active', i===outdoorIndex);});
-  }
-  function outdoorGoto(i){outdoorIndex=i;outdoorRender();}
-  function outdoorGo(delta){outdoorIndex=(outdoorIndex+delta+3)%3;outdoorRender();}
-  setInterval(function(){outdoorGo(1);}, 9000);
-  </script>
 
   <div class="mz-sponsors">
     <div class="mz-sp-head">

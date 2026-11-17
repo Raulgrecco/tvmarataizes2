@@ -713,6 +713,8 @@ a.canal .canal-s{background:var(--foam);color:var(--ink);border-color:var(--foam
 /* enquanto flutua, os ancestrais posicionados sobem de camada (abaixo do menu fixo do portal)
    e perdem transform/filter, que prenderiam o position:fixed dentro deles */
 .fp-anc{z-index:var(--fp-z-anc,400)!important}
+.fp-anc-ov{overflow:visible!important;overflow-x:clip!important;overflow-y:visible!important}   /* Safari do iPhone recortava o player no fim da seção com overflow:hidden */
+.fp-decor{display:none!important}       /* enfeites da seção que poderiam vazar enquanto o recorte está desligado */
 .fp-anc-cb{transform:none!important;filter:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;perspective:none!important;contain:none!important;will-change:auto!important}
 @media (prefers-reduced-motion:reduce){.fp-mini{animation:none}.fp-barra .fp-vivo i{animation:none}}
 
@@ -4258,7 +4260,7 @@ var OUTDOOR_DIGITAL_NA_HOME = false;  /* desligado (15/11/2026): volta com 'auto
   }
   var marcados = [];
   function ancestrais(liga){
-    marcados.forEach(function(e){ e.classList.remove('fp-anc', 'fp-anc-cb'); });
+    marcados.forEach(function(e){ e.classList.remove('fp-anc', 'fp-anc-cb', 'fp-anc-ov', 'fp-decor'); });
     marcados = [];
     if (!liga) return;
     for (var e = jan.parentNode; e && e !== d.body && e.nodeType === 1; e = e.parentNode){
@@ -4266,6 +4268,14 @@ var OUTDOOR_DIGITAL_NA_HOME = false;  /* desligado (15/11/2026): volta com 'auto
       if (cs.position !== 'static') { e.classList.add('fp-anc'); m = true; }
       if (cs.transform !== 'none' || cs.filter !== 'none' || (cs.backdropFilter && cs.backdropFilter !== 'none') || cs.perspective !== 'none' ||
           (cs.contain && cs.contain !== 'none') || /transform|filter|perspective/.test(cs.willChange)) { e.classList.add('fp-anc-cb'); m = true; }
+      if (cs.overflowX !== 'visible' || cs.overflowY !== 'visible') {
+        e.classList.add('fp-anc-ov'); m = true;
+        [].forEach.call(e.querySelectorAll('[aria-hidden="true"]'), function(x){
+          if (x.contains(jan) || jan.contains(x)) return;
+          var p = getComputedStyle(x).position;
+          if (p === 'absolute' || p === 'fixed') { x.classList.add('fp-decor'); marcados.push(x); }
+        });
+      }
       if (m) marcados.push(e);
     }
   }
